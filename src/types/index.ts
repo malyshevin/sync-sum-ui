@@ -10,7 +10,7 @@ export interface ApiError {
 }
 
 export interface UseCounterReturn {
-  counter: number;
+  counter: number | null;
   isLoading: boolean;
   error: ApiError | null;
   increment: () => Promise<void>;

@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { CounterDisplay } from './components/CounterDisplay';
+import { App } from './components/App';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <CounterDisplay />
+    <App />
   </React.StrictMode>,
 );

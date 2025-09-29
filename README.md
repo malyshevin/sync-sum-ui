@@ -18,9 +18,12 @@
 flowchart TB
     subgraph "Frontend (React)"
         subgraph "Optimized Components"
+            App[App Component]
             Container[AppContainer]
             Header[AppHeader]
-            Counter[CounterValue]
+            CounterValue[CounterValue]
+            CounterNumber[CounterNumber]
+            ErrorMsg[ErrorMessage]
             Buttons[ActionButtons]
             Status[StatusInfo]
         end
@@ -34,12 +37,21 @@ flowchart TB
         DB[(PostgreSQL)]
     end
     
+    App --> Container
+    App --> Header
+    App --> CounterValue
+    App --> Buttons
+    App --> Status
+    
     Container --> Header
-    Container --> Counter
+    Container --> CounterValue
     Container --> Buttons
     Container --> Status
     
-    Counter --> Hook
+    CounterValue --> CounterNumber
+    CounterValue --> ErrorMsg
+    
+    App --> Hook
     Buttons --> Hook
     Hook --> API
     API --> REST
@@ -50,9 +62,12 @@ flowchart TB
     
     Hook -.->|Auto-refresh| API
     
+    style App fill:#e1f5fe
     style Container fill:#e1f5fe
     style Header fill:#f3e5f5
-    style Counter fill:#e8f5e8
+    style CounterValue fill:#e8f5e8
+    style CounterNumber fill:#e8f5e8
+    style ErrorMsg fill:#ffebee
     style Buttons fill:#e8f5e8
     style Status fill:#f3e5f5
     style Hook fill:#fff3e0
@@ -77,12 +92,14 @@ flowchart TB
 sync-sum-ui/
 ├── src/
 │   ├── components/          # React компоненты
-│   │   ├── CounterDisplay.tsx    # Основной компонент
-│   │   ├── AppContainer.tsx      # Контейнер приложения
-│   │   ├── AppHeader.tsx         # Заголовок
-│   │   ├── CounterValue.tsx      # Отображение счетчика
-│   │   ├── ActionButtons.tsx     # Кнопки действий
-│   │   └── StatusInfo.tsx        # Информация о статусе
+│   │   ├── App.tsx              # Основной компонент приложения
+│   │   ├── AppContainer.tsx     # Контейнер приложения
+│   │   ├── AppHeader.tsx        # Заголовок
+│   │   ├── CounterValue.tsx     # Контейнер для отображения счетчика
+│   │   ├── CounterNumber.tsx    # Отображение числа счетчика
+│   │   ├── ErrorMessage.tsx     # Отображение ошибок
+│   │   ├── ActionButtons.tsx    # Кнопки действий
+│   │   └── StatusInfo.tsx       # Информация о статусе
 │   ├── hooks/               # Пользовательские хуки
 │   │   └── useCounter.ts
 │   ├── lib/                 # Утилиты и API клиент
@@ -98,8 +115,7 @@ sync-sum-ui/
 ├── tailwind.config.js      # Конфигурация Tailwind
 ├── tsconfig.json           # Конфигурация TypeScript
 ├── env.example             # Пример переменных окружения
-├── README.md               # Документация
-└── PERFORMANCE.md          # Оптимизация производительности
+└── README.md               # Документация
 ```
 
 ## Поток данных
@@ -213,8 +229,8 @@ API клиент автоматически подключается к серв
 
 Приложение использует мемоизированные компоненты для предотвращения лишних перерисовок:
 
-#### CounterDisplay
-Основной компонент приложения, который координирует работу всех подкомпонентов.
+#### App
+Основной компонент приложения, который использует хук `useCounter` и координирует работу всех подкомпонентов.
 
 #### AppContainer
 Контейнер приложения с градиентным фоном и карточкой. Не перерисовывается.
@@ -223,7 +239,13 @@ API клиент автоматически подключается к серв
 Заголовок приложения "Sync Sum Counter". Не перерисовывается.
 
 #### CounterValue
-Отображает текущее значение счетчика, состояние загрузки и ошибки. Перерисовывается только при изменении значения.
+Контейнер для отображения счетчика. Перерисовывается только при изменении props.
+
+#### CounterNumber
+Отображает текущее значение счетчика. Перерисовывается только при изменении значения или состояния загрузки.
+
+#### ErrorMessage
+Отображает сообщения об ошибках. Перерисовывается только при изменении ошибки.
 
 #### ActionButtons
 Кнопки "Увеличить" и "Обновить". Перерисовывается только при изменении состояния загрузки.
@@ -321,6 +343,8 @@ npm run preview
 - **Быстрее рендеринг**: Мемоизация предотвращает лишние вычисления
 - **Лучший UX**: Плавные анимации без лагов при автообновлении
 - **Экономия ресурсов**: Минимальная нагрузка на браузер
+- **Изолированные обновления**: При изменении ошибки обновляется только `ErrorMessage`
+- **Точная мемоизация**: Каждый компонент отвечает за свою часть UI
 
 ### Автоматическое обновление
 
@@ -396,7 +420,6 @@ MIT
 
 ## Дополнительная документация
 
-- [PERFORMANCE.md](./PERFORMANCE.md) - Подробное описание оптимизации производительности
 - [env.example](./env.example) - Пример конфигурации переменных окружения
 
 ## Поддержка

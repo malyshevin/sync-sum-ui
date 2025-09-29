@@ -3,12 +3,12 @@ import { counterApi, API_CONFIG } from '../lib/counterApi';
 import type { ApiError, UseCounterReturn } from '../types';
 
 export const useCounter = (): UseCounterReturn => {
-  const [counter, setCounter] = useState<number>(0);
+  const [counter, setCounter] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<ApiError | null>(null);
   
   // Используем ref для предотвращения лишних обновлений при одинаковых значениях
-  const lastCounterRef = useRef<number>(0);
+  const lastCounterRef = useRef<number | null>(null);
   const lastErrorRef = useRef<string | null>(null);
 
   const fetchCounter = useCallback(async () => {
@@ -23,11 +23,10 @@ export const useCounter = (): UseCounterReturn => {
       }
     } catch (err) {
       const errorObj = err as ApiError;
-      // Обновляем ошибку только если она изменилась
-      if (errorObj.message !== lastErrorRef.current) {
-        setError(errorObj);
-        lastErrorRef.current = errorObj.message;
-      }
+      // Всегда устанавливаем ошибку при ошибке API
+      setError(errorObj);
+      lastErrorRef.current = errorObj.message;
+      // НЕ сбрасываем счетчик при ошибке - сохраняем последнее известное значение
     } finally {
       setIsLoading(false);
     }
@@ -50,6 +49,8 @@ export const useCounter = (): UseCounterReturn => {
   }, []);
 
   const refresh = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     await fetchCounter();
   }, [fetchCounter]);
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React from 'react';
 import { useCounter } from '../hooks/useCounter';
 import { AppContainer } from './AppContainer';
 import { AppHeader } from './AppHeader';
@@ -6,19 +6,18 @@ import { CounterValue } from './CounterValue';
 import { ActionButtons } from './ActionButtons';
 import { StatusInfo } from './StatusInfo';
 
-export const CounterDisplay = React.memo(() => {
+export const App = React.memo(() => {
   const { counter, isLoading, error, increment, refresh } = useCounter();
 
-  const handleIncrement = useCallback(async () => {
+  const handleIncrement = React.useCallback(async () => {
     await increment();
   }, [increment]);
 
-  const handleRefresh = useCallback(async () => {
+  const handleRefresh = React.useCallback(async () => {
     await refresh();
   }, [refresh]);
 
-  // Мемоизируем значение ошибки для предотвращения лишних перерисовок
-  const errorMessage = useMemo(() => error?.message || null, [error?.message]);
+  const errorMessage = React.useMemo(() => error?.message || null, [error?.message]);
 
   return (
     <AppContainer>
@@ -41,4 +40,4 @@ export const CounterDisplay = React.memo(() => {
   );
 });
 
-CounterDisplay.displayName = 'CounterDisplay';
+App.displayName = 'App';
